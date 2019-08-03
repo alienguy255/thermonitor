@@ -1,5 +1,6 @@
 package org.scottsoft.monitor;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.scottsoft.monitor.domain.db.IThermostat;
 import org.scottsoft.monitor.domain.dto.ThermostatSampleDTO;
@@ -14,20 +15,14 @@ import java.util.Date;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class CT50ThermostatSampleCollector extends MonitorAsyncTaskRunner<IThermostat, TStatSample> {
 
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
-    private ThermostatService thermostatService;
+    private final ThermostatService thermostatService;
 
-    private SimpMessagingTemplate template;
-
-    public CT50ThermostatSampleCollector(RestTemplate restTemplate, ThermostatService thermostatService,
-                                         SimpMessagingTemplate template) {
-        this.restTemplate = restTemplate;
-        this.thermostatService = thermostatService;
-        this.template = template;
-    }
+    private final SimpMessagingTemplate template;
 
     @Override
     protected TStatSample collectSample(IThermostat thermostat) {

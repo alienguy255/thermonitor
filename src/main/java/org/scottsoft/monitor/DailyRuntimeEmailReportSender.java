@@ -81,7 +81,7 @@ public class DailyRuntimeEmailReportSender {
                     body.with(TagCreator.br());
                 }
             }
-            String emailContent = TagCreator.html().with(body).toString();
+            String emailContent = TagCreator.html().with(body).renderFormatted();
             log.info("Emailing daily runtime report...");
             log.info("email content={}", emailContent);
             GoogleMailer.createMailer()

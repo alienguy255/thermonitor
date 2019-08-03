@@ -1,20 +1,19 @@
 package org.scottsoft.monitor;
 
+import lombok.RequiredArgsConstructor;
 import org.scottsoft.monitor.services.ThermostatService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
 @EnableScheduling
+@RequiredArgsConstructor
 public class ThermostatSampleCollector {
 
-    @Autowired
-    private SampleCollectorFactory sampleCollectorFactory;
+    private final SampleCollectorFactory sampleCollectorFactory;
 
-    @Autowired
-    private ThermostatService thermostatService;
+    private final ThermostatService thermostatService;
 
     @Scheduled(cron="0/60 * * * * ?")
     public void pollAllDevices() {
