@@ -63,7 +63,7 @@ public class GoogleMailer {
             generateMailMessage.setSubject(this.subject);
             generateMailMessage.setContent((Object)this.content, "text/html");
             Transport transport = getMailSession.getTransport("smtp");
-            transport.connect("smtp.gmail.com", "user", "password");
+            transport.connect("smtp.gmail.com", "<username here>", "<passwd here>");
             transport.sendMessage(generateMailMessage, generateMailMessage.getAllRecipients());
             transport.close();
         }

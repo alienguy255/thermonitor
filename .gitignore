@@ -1,4 +1,5 @@
 /target
+/scottsoft
 bin
 *.project
 *.classpath
@@ -6,3 +7,4 @@ bin
 .idea/
 *.iml
 *atlassian-ide-plugin.xml
+*.db

@@ -1,3 +1,5 @@
+server:
+  port: 8081
 spring:
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
@@ -10,7 +12,3 @@ spring:
     driverClassName: org.h2.Driver
     username: sa
     password: password
-  mvc:
-    view:
-      prefix: /WEB-INF/jsp/
-      suffix: .jsp

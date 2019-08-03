@@ -31,13 +31,13 @@ public class CT50ThermostatSampleCollector extends MonitorAsyncTaskRunner<ITherm
 
     @Override
     protected TStatSample collectSample(IThermostat thermostat) {
-        log.info("Retrieving sample from thermostat {} with ip {}", thermostat.getName(), thermostat.getIpAddress());
+        log.debug("Retrieving sample from thermostat {} with ip {}", thermostat.getName(), thermostat.getIpAddress());
 
         // query the thermostat for tstat sample:
         String thermostatURL = MessageFormat.format("http://{0}/tstat", thermostat.getIpAddress());
 
         TStatSample response = restTemplate.getForObject(thermostatURL, TStatSample.class);
-        log.info("Response from thermostat {} = {}", thermostat.getName(), response);
+        log.debug("Response from thermostat {} = {}", thermostat.getName(), response);
         return response;
     }
 
