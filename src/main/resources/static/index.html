@@ -1,39 +1,14 @@
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Thermostat Dashboard</title>
+  <meta charset="utf-8">
+  <title>ThermonitorUi</title>
+  <base href="/">
 
-    <link rel="stylesheet" type="text/css" href="css/home.css" />
-    <link rel="stylesheet" type="text/css" href="css/jquery-ui-1.8.19.custom.css" />
-
-    <script type="text/javascript" src="script/jquery-3.2.1.min.js"></script>
-
-    <script type="text/javascript" src="script/highstock.js"></script>
-    <script type="text/javascript" src="script/modules/exporting.js"></script>
-
-    <script type="text/javascript" src="script/component/ThermostatsView.js"></script>
-
-    <script type="text/javascript" src="script/stomp.min.js"></script>
-    <script type="text/javascript" src="script/sockjs-0.3.min.js"></script>
-
-    <script type="text/javascript">
-        $(document).ready(function(){
-            // build and render the Thermostats View
-            $('#thermostatsContainer').ThermostatsView();
-        });
-    </script>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
-
-<h1>Thermostat Dashboard</h1>
-<div id="thermostatsContainer" class="container">
-    <div id="container1" style="float:left; width: 800px; height: 400px; margin: 0 auto"></div><div id="status1" style="float:left;"></div>
-    <div id="container2" style="float:left; width: 800px; height: 400px; margin: 0 auto"></div><div id="status2" style="float:left;"></div>
-    <div id="container3" style="float:left; width: 800px; height: 400px; margin: 0 auto"></div><div id="status3" style="float:left;"></div>
-    <div id="container4" style="float:left; width: 800px; height: 400px; margin: 0 auto"></div><div id="status4" style="float:left;"></div>
-    <div id="container5" style="float:left; width: 800px; height: 400px; margin: 0 auto"></div><div id="status5" style="float:left;"></div>
-</div>
-
-</body>
+  <app-root></app-root>
+<script src="runtime-es2015.js" type="module"></script><script src="polyfills-es2015.js" type="module"></script><script src="runtime-es5.js" nomodule defer></script><script src="polyfills-es5.js" nomodule defer></script><script src="styles-es2015.js" type="module"></script><script src="styles-es5.js" nomodule defer></script><script src="vendor-es2015.js" type="module"></script><script src="main-es2015.js" type="module"></script><script src="vendor-es5.js" nomodule defer></script><script src="main-es5.js" nomodule defer></script></body>
 </html>
