@@ -121,7 +121,7 @@ var AppComponent = /** @class */ (function () {
     }
     AppComponent.prototype.ngOnInit = function () {
         var _this = this;
-        var ws = new sockjs_client__WEBPACK_IMPORTED_MODULE_4__('http://localhost:8081/websocket');
+        var ws = new sockjs_client__WEBPACK_IMPORTED_MODULE_4__('/websocket');
         this.stompClient = stompjs__WEBPACK_IMPORTED_MODULE_3__["over"](ws);
         var that = this;
         this.stompClient.connect({}, function () {
@@ -149,7 +149,7 @@ var AppComponent = /** @class */ (function () {
             });
         });
         // load all thermostats from server, render chart per tstat
-        this.getApiResponse('http://localhost:8081/thermostats').then(function (tstats) {
+        this.getApiResponse('/thermostats').then(function (tstats) {
             _this.thermostats = tstats;
         }, function (error) {
             console.log('An error occurred retrieving thermostat data from the server. ' + error);
@@ -393,8 +393,8 @@ var OutputGraphComponent = /** @class */ (function () {
         fromTime.setDate(fromTime.getDate() - 7);
         var toTime = new Date();
         // TODO: find better way rather than loading weather data for every tstat
-        this.getApiResponse('http://localhost:8081/thermostats/' + this.thermostat.id + '/samples?fromTime=' + fromTime.getTime() + '&toTime=' + toTime.getTime()).then(function (samples) {
-            _this.getApiResponse('http://localhost:8081/weather/' + _this.thermostat.location.id + '/samples?fromTime=' + fromTime.getTime() + '&toTime=' + toTime.getTime()).then(function (weatherSamples) {
+        this.getApiResponse('/thermostats/' + this.thermostat.id + '/samples?fromTime=' + fromTime.getTime() + '&toTime=' + toTime.getTime()).then(function (samples) {
+            _this.getApiResponse('/weather/' + _this.thermostat.location.id + '/samples?fromTime=' + fromTime.getTime() + '&toTime=' + toTime.getTime()).then(function (weatherSamples) {
                 _this.renderChart(samples, weatherSamples, _this.thermostat);
             }, function (error) {
                 console.log('An error occurred retrieving weather data from the server. ' + error);

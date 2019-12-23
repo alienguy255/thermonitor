@@ -117,7 +117,7 @@ let AppComponent = class AppComponent {
         this.thermostats = [];
     }
     ngOnInit() {
-        const ws = new sockjs_client__WEBPACK_IMPORTED_MODULE_4__('http://localhost:8081/websocket');
+        const ws = new sockjs_client__WEBPACK_IMPORTED_MODULE_4__('/websocket');
         this.stompClient = stompjs__WEBPACK_IMPORTED_MODULE_3__["over"](ws);
         const that = this;
         this.stompClient.connect({}, () => {
@@ -145,7 +145,7 @@ let AppComponent = class AppComponent {
             });
         });
         // load all thermostats from server, render chart per tstat
-        this.getApiResponse('http://localhost:8081/thermostats').then(tstats => {
+        this.getApiResponse('/thermostats').then(tstats => {
             this.thermostats = tstats;
         }, error => {
             console.log('An error occurred retrieving thermostat data from the server. ' + error);
@@ -384,8 +384,8 @@ let OutputGraphComponent = class OutputGraphComponent {
         fromTime.setDate(fromTime.getDate() - 7);
         const toTime = new Date();
         // TODO: find better way rather than loading weather data for every tstat
-        this.getApiResponse('http://localhost:8081/thermostats/' + this.thermostat.id + '/samples?fromTime=' + fromTime.getTime() + '&toTime=' + toTime.getTime()).then(samples => {
-            this.getApiResponse('http://localhost:8081/weather/' + this.thermostat.location.id + '/samples?fromTime=' + fromTime.getTime() + '&toTime=' + toTime.getTime()).then(weatherSamples => {
+        this.getApiResponse('/thermostats/' + this.thermostat.id + '/samples?fromTime=' + fromTime.getTime() + '&toTime=' + toTime.getTime()).then(samples => {
+            this.getApiResponse('/weather/' + this.thermostat.location.id + '/samples?fromTime=' + fromTime.getTime() + '&toTime=' + toTime.getTime()).then(weatherSamples => {
                 this.renderChart(samples, weatherSamples, this.thermostat);
             }, error => {
                 console.log('An error occurred retrieving weather data from the server. ' + error);
