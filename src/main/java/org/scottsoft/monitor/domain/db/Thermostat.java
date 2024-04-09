@@ -1,7 +1,21 @@
 package org.scottsoft.monitor.domain.db;
 
-import javax.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.scottsoft.monitor.domain.dto.ThermostatDTO;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "thermostat")
 public class Thermostat implements IThermostat {
@@ -24,49 +38,8 @@ public class Thermostat implements IThermostat {
 	@Enumerated(EnumType.STRING)
     private ThermostatModel model;
 
-	@Override
-	public String getId() {
-		return id;
-	}
-
-    public void setId(String id) {
-        this.id = id;
+    public ThermostatDTO toDto() {
+        return new ThermostatDTO(id, location.toDto(), name, ipAddress);
     }
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-	@Override
-	public String getIpAddress() {
-		return ipAddress;
-	}
-
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
-    }
-
-	@Override
-	public Location getLocation() {
-		return location;
-	}
-
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    @Override
-    public ThermostatModel getModel() {
-		return model;
-	}
-
-	public void setModel(ThermostatModel model) {
-		this.model = model;
-	}
 
 }

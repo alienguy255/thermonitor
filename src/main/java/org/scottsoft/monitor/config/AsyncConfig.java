@@ -25,7 +25,7 @@ public class AsyncConfig extends AsyncConfigurerSupport {
     public Executor threadPoolTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(5);
-        executor.setMaxPoolSize(10);
+        executor.setMaxPoolSize(5);
         executor.setThreadNamePrefix("DataCollector");
         return executor;
     }

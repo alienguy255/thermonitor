@@ -1,12 +1,12 @@
 package org.scottsoft.monitor.controller;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.scottsoft.monitor.domain.db.Thermostat;
 import org.scottsoft.monitor.domain.dto.ThermostatDTO;
 import org.scottsoft.monitor.domain.dto.ThermostatSampleDTO;
 import org.scottsoft.monitor.domain.sample.IThermostatSample;
 import org.scottsoft.monitor.services.ThermostatService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -22,19 +22,19 @@ import java.util.stream.StreamSupport;
 
 @Slf4j
 @Controller
+@AllArgsConstructor
 @RequestMapping("/thermostats")
 public class ThermostatController {
 
-    @Autowired
-    private ThermostatService thermostatService;
+    private final ThermostatService thermostatService;
 
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<List<ThermostatDTO>> getThermostats() {
-        Iterable<Thermostat> allThermostats = thermostatService.getAllThermostats();
-        List<ThermostatDTO> thermostatDTOs = StreamSupport.stream(allThermostats.spliterator(), false).map(thermostat -> new ThermostatDTO(thermostat.getId(),
-                thermostat.getLocation(), thermostat.getName(), thermostat.getIpAddress())).collect(Collectors.toList());
+        List<ThermostatDTO> tstatRecords = StreamSupport.stream(thermostatService.getAllThermostats().spliterator(), false)
+                .map(Thermostat::toDto)
+                .toList();
 
-        return new ResponseEntity<>(thermostatDTOs, HttpStatus.OK);
+        return new ResponseEntity<>(tstatRecords, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{id}/samples", method = RequestMethod.GET)

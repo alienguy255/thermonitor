@@ -1,16 +1,18 @@
 package org.scottsoft.monitor.domain.db;
 
-import lombok.AccessLevel;
+import jakarta.persistence.Column;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.Entity;
+import lombok.NoArgsConstructor;
+import org.scottsoft.monitor.domain.dto.LocationDTO;
 
 @Data
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "location")
 public class Location implements ILocation {
@@ -27,5 +29,9 @@ public class Location implements ILocation {
 
     @Column(name = "state")
     private String state;
+
+    public LocationDTO toDto() {
+        return new LocationDTO(id, zipCode, city, state);
+    }
 
 }
