@@ -8,3 +8,4 @@ bin
 *.iml
 *atlassian-ide-plugin.xml
 *.db
+.DS_Store
