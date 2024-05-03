@@ -42,7 +42,7 @@ public class Thermostat {
     }
 
     public ThermostatDTO toDto() {
-        return new ThermostatDTO(id, location.toDto(), name, url);
+        return new ThermostatDTO(id, location.getId(), name, url);
     }
 
 }

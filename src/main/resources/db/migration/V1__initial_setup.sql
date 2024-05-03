@@ -22,3 +22,4 @@ CREATE TABLE weather_source (
   PRIMARY KEY (id),
   CONSTRAINT weather_src_loc_id_fkey FOREIGN KEY(location_id) references location(id)
 );
+

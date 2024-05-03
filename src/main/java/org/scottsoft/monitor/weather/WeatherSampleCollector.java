@@ -23,21 +23,21 @@ public class WeatherSampleCollector extends MonitorAsyncTaskRunner<WeatherSource
     @Override
     protected OpenWeatherSample collectSample(WeatherSource weatherSource) {
         Location location = weatherSource.getLocation();
-        log.debug("Retrieving weather sample for location {}, longitude {}, latitude {}", location.getDescription(), location.getLongitude(), location.getLatitude());
+        log.info("Retrieving weather sample for location {}, longitude {}, latitude {}", location.getDescription(), location.getLongitude(), location.getLatitude());
 
         OpenWeatherSample response = restTemplate.getForObject(weatherSource.getUrl(), OpenWeatherSample.class);
-        log.debug("response from open weather: " + Optional.ofNullable(response).map(OpenWeatherSample::getMain).orElse(null));
+        log.info("response from open weather: " + Optional.ofNullable(response).map(OpenWeatherSample::getMain).orElse(null));
         return response;
     }
 
     @Override
     protected void insertSample(WeatherSource weatherSource, OpenWeatherSample response) {
-        weatherService.insertSample(weatherSource.getLocation().getId(), response.getTemp(), new Date());
+        weatherService.insertSample(weatherSource.getLocation().getId(), response.getTemp(), new Date().getTime());
     }
 
     @Override
     protected void notifyClients(WeatherSource weatherSource, OpenWeatherSample response) {
-        WeatherSampleDTO sampleDTO = new WeatherSampleDTO(weatherSource.getId(), response.getTemp(), new Date());
+        OldWeatherSampleDTO sampleDTO = new OldWeatherSampleDTO(weatherSource.getId(), response.getTemp(), new Date());
         template.convertAndSend("/topic/weather-updates", sampleDTO);
     }
 

@@ -20,24 +20,23 @@ public class ThermostatSampleCollector extends MonitorAsyncTaskRunner<Thermostat
 
     @Override
     protected TStatSample collectSample(Thermostat thermostat) {
-        log.debug("Retrieving sample from thermostat {} with url {}", thermostat.getName(), thermostat.getUrl());
+        log.info("Retrieving sample from thermostat {} with url {}", thermostat.getName(), thermostat.getUrl());
 
         // NOTE: timeouts configured in RestTemplateConfig
         TStatSample response = restTemplate.getForObject(thermostat.getUrl(), TStatSample.class);
-        log.debug("Response from thermostat {} = {}", thermostat.getName(), response);
+        log.info("Response from thermostat {} = {}", thermostat.getName(), response);
         return response;
     }
 
     @Override
     protected void insertSample(Thermostat thermostat, TStatSample response) {
-        // insert sample into database:
-        thermostatService.insertThermostatSample(thermostat.getId(), Double.parseDouble(response.temp()), Double.parseDouble(response.tmode()),
+        thermostatService.insertSample(thermostat.getId(), Double.parseDouble(response.temp()), Double.parseDouble(response.tmode()),
                 Double.parseDouble(response.override()), Double.parseDouble(response.t_heat()), Double.parseDouble(response.tstate()), new Date().getTime());
     }
 
     @Override
     protected void notifyClients(Thermostat thermostat, TStatSample response) {
-        ThermostatSampleDTO sampleDTO = new ThermostatSampleDTO(thermostat.getId(), Double.parseDouble(response.temp()), Double.parseDouble(response.override()),
+        OldThermostatSampleDTO sampleDTO = new OldThermostatSampleDTO(thermostat.getId(), Double.parseDouble(response.temp()), Double.parseDouble(response.override()),
                 Double.parseDouble(response.t_heat()), Double.parseDouble(response.tstate()), new Date().getTime());
         template.convertAndSend("/topic/tstat-updates", sampleDTO);
     }

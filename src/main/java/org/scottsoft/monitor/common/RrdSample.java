@@ -9,7 +9,7 @@ public class RrdSample {
 
     private final long timestamp;
 
-    private Map<String, Double> metrics = Maps.newHashMap();
+    private final Map<String, Double> metrics = Maps.newHashMap();
 
     public RrdSample(long timestamp) {
         this.timestamp = timestamp;

@@ -3,6 +3,7 @@ package org.scottsoft.monitor.notification;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.BodyTag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.scottsoft.monitor.location.Location;
 import org.scottsoft.monitor.thermostat.Thermostat;
@@ -11,9 +12,9 @@ import org.scottsoft.monitor.weather.IWeatherSample;
 import org.scottsoft.monitor.location.LocationService;
 import org.scottsoft.monitor.thermostat.ThermostatService;
 import org.scottsoft.monitor.weather.WeatherService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -28,20 +29,18 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Component
 @EnableScheduling
-@ManagedResource(objectName = "org.scottsoft.monitor:name=DailyRuntimeEmailReportSender")
+@RequiredArgsConstructor
+@ManagedResource
 public class DailyRuntimeEmailReportSender {
 
     private static final DecimalFormat DOUBLE_FORMATTER = new DecimalFormat(".##");
 
-    @Autowired
-    private LocationService locationService;
+    private final LocationService locationService;
+    private final ThermostatService thermostatService;
+    private final WeatherService weatherService;
+    private final JavaMailSender mailSender;
 
-    @Autowired
-    private ThermostatService thermostatService;
-
-    @Autowired
-    private WeatherService weatherService;
-
+    // TODO: this should be a template instead of building style and body in code
     @ManagedOperation
     @Scheduled(cron = "0 0 8 * * ?")
     public void sendDailyRuntimeReport() {
@@ -50,31 +49,46 @@ public class DailyRuntimeEmailReportSender {
             Instant twentyFourHoursAgo = now.minus(24, ChronoUnit.HOURS);
             ContainerTag<BodyTag> body = TagCreator.body();
             for (Location location : this.locationService.getAllLocations()) {
-                List<IWeatherSample> weatherSamples = this.weatherService.getSamples(location.getId(), new Date(twentyFourHoursAgo.toEpochMilli()), new Date(now.toEpochMilli()));
+                List<IWeatherSample> weatherSamples = this.weatherService.getSamples(location.getId(), twentyFourHoursAgo.toEpochMilli(), now.toEpochMilli());
 
-                OptionalDouble avgOutsideTempOptional = weatherSamples.stream()
+                double avgOutsideTemp = weatherSamples.stream()
                         .filter(sample -> !Double.isNaN(sample.getCurrentTemp()))
                         .mapToDouble(IWeatherSample::getCurrentTemp)
-                        .average();
-                body.with(TagCreator.h3("Average outside temperature for " + location.getDescription() + " in the past 24 hours: " + DailyRuntimeEmailReportSender.DOUBLE_FORMATTER.format(avgOutsideTempOptional.getAsDouble()) + " F").attr("style", "margin-top:0px;margin-bottom:0px;"));
+                        .average().orElse(Double.NaN);
 
-                Optional<IWeatherSample> minOutsideTempSampleOptional = weatherSamples.stream()
-                        .filter(sample -> !Double.isNaN(sample.getCurrentTemp()))
-                        .min(Comparator.comparingDouble(IWeatherSample::getCurrentTemp));
-                body.with(TagCreator.h3("Past 24 hr low: " + minOutsideTempSampleOptional.get().getCurrentTemp() + " F at " + new SimpleDateFormat("hh:mm a").format(minOutsideTempSampleOptional.get().getTime())).attr("style", "margin-top:0px;margin-bottom:0px;"));
+                if (!Double.isNaN(avgOutsideTemp)) {
+                    body.with(TagCreator
+                            .h3("Average outside temperature for " + location.getDescription() + " in the past 24 hours: " + DailyRuntimeEmailReportSender.DOUBLE_FORMATTER.format(avgOutsideTemp) + " F")
+                            .attr("style", "margin-top:0px;margin-bottom:0px;"));
 
-                Optional<IWeatherSample> maxOutsideTempSampleOptional = weatherSamples.stream()
-                        .filter(sample -> !Double.isNaN(sample.getCurrentTemp()))
-                        .max(Comparator.comparingDouble(IWeatherSample::getCurrentTemp));
-                body.with(TagCreator.h3("Past 24 hr high: " + maxOutsideTempSampleOptional.get().getCurrentTemp() + " F at " + new SimpleDateFormat("hh:mm a").format(maxOutsideTempSampleOptional.get().getTime())).attr("style", "margin-top:0px;margin-bottom:0px;"));
+                    Optional<IWeatherSample> minOutsideTempSampleOptional = weatherSamples.stream()
+                            .filter(sample -> !Double.isNaN(sample.getCurrentTemp()))
+                            .min(Comparator.comparingDouble(IWeatherSample::getCurrentTemp));
+                    body.with(TagCreator
+                            .h3("Past 24 hr low: " + minOutsideTempSampleOptional.get().getCurrentTemp() + " F at " + new SimpleDateFormat("hh:mm a").format(minOutsideTempSampleOptional.get().getTime()))
+                            .attr("style", "margin-top:0px;margin-bottom:0px;"));
 
-                body.with(TagCreator.br());
+                    Optional<IWeatherSample> maxOutsideTempSampleOptional = weatherSamples.stream()
+                            .filter(sample -> !Double.isNaN(sample.getCurrentTemp()))
+                            .max(Comparator.comparingDouble(IWeatherSample::getCurrentTemp));
+                    body.with(TagCreator.h3("Past 24 hr high: " + maxOutsideTempSampleOptional.get().getCurrentTemp() + " F at " + new SimpleDateFormat("hh:mm a").format(maxOutsideTempSampleOptional.get().getTime())).attr("style", "margin-top:0px;margin-bottom:0px;"));
+
+                    body.with(TagCreator.br());
+                } else {
+                    body.with(TagCreator
+                            .h3("Weather data is unavailable. Check if you have a weather source configured in order to see more details in this section")
+                            .attr("style", "margin-top:0px;margin-bottom:0px;"));
+                }
+
                 Iterable<Thermostat> thermostats = this.thermostatService.getThermostatsByLocation(location);
                 for (Thermostat thermostat : thermostats) {
-                    List<IThermostatSample> thermostatSamples = this.thermostatService.getThermostatSamples(thermostat.getId(), new Date(twentyFourHoursAgo.toEpochMilli()), new Date(now.toEpochMilli()));
+                    List<IThermostatSample> thermostatSamples = this.thermostatService.getThermostatSamples(thermostat.getId(), twentyFourHoursAgo.toEpochMilli(), now.toEpochMilli());
                     log.info("Retrieved {} thermostat samples for {}", thermostatSamples.size(), thermostat.getName());
                     body.with(TagCreator.h3(thermostat.getName() + ":"));
-                    double runtimeInMins = thermostatSamples.stream().mapToDouble(thermostatSample -> thermostatSample.tstate()).filter(sample -> !Double.valueOf(sample).isNaN()).sum();
+                    double runtimeInMins = thermostatSamples.stream()
+                            .mapToDouble(IThermostatSample::tstate)
+                            .filter(sample -> !Double.valueOf(sample).isNaN())
+                            .sum();
                     body.with(TagCreator.p("Past 24hr runtime: " + this.runtimeDisplayString(runtimeInMins)).attr("style", "margin-top:0px;margin-bottom:0px;"));
                     body.with(TagCreator.p("Past 24hr runtime percentage: " + DailyRuntimeEmailReportSender.DOUBLE_FORMATTER.format(runtimeInMins / 1440.0 * 100.0) + "%").attr("style", "margin-top:0px;margin-bottom:0px;"));
                     body.with(TagCreator.br());
@@ -83,8 +97,9 @@ public class DailyRuntimeEmailReportSender {
             String emailContent = TagCreator.html().with(body).renderFormatted();
             log.info("Emailing daily runtime report...");
             log.info("email content={}", emailContent);
-            GoogleMailer.createMailer()
-                    .addRecipient("scottmlaplante@gmail.com")
+
+            MimeMailMessageSender.createMailer(mailSender)
+                    .addRecipients("scottmlaplante@gmail.com")
                     .setSubject("Daily heating report for " + new SimpleDateFormat("MM/dd/yyyy hh:mm a").format(new Date(twentyFourHoursAgo.toEpochMilli())) + " to " + new SimpleDateFormat("MM/dd/yyyy hh:mm a").format(new Date(now.toEpochMilli())))
                     .setContent(emailContent)
                     .sendMail();

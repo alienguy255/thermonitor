@@ -1,0 +1,35 @@
+type ThermostatDTO {
+    id: ID!
+    location: LocationDTO
+    name: String
+    url: String
+    samples(fromTimeMs: String, toTimeMs: String): [ThermostatSampleDTO]
+}
+
+type ThermostatSampleDTO {
+    currentTemp: String
+    override: String
+    targetTemp: String
+    tstate: String
+    timeMs: String
+}
+
+type LocationDTO {
+    id: ID!
+    description: String
+    longitude: String
+    latitude: String
+    thermostats: [ThermostatDTO]
+    weatherSamples(fromTimeMs: String, toTimeMs: String): [WeatherSampleDTO]
+}
+
+type WeatherSampleDTO {
+    currentTemp: String
+    timeMs: String
+}
+
+type Query {
+    thermostatById(id: ID): ThermostatDTO
+    locations: [LocationDTO]
+    thermostats: [ThermostatDTO]
+}

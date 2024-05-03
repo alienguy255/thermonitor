@@ -1,33 +1,32 @@
 package org.scottsoft.monitor.weather;
 
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.StreamSupport;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.scottsoft.monitor.common.RrdSample;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class WeatherService {
 
 	private final WeatherSourceRepository weatherSourceRepository;
-	private final WeatherSampleRrdDAO weatherSampleDAO;
+	private final WeatherSampleRepository weatherSampleRepository;
 
 	public List<WeatherSource> getAllWeatherSources() {
 		return StreamSupport.stream(weatherSourceRepository.findAll().spliterator(), false).toList();
 	}
 
-	public List<IWeatherSample> getSamples(UUID locationId, Date fromTime, Date toTime) {
-		return weatherSampleDAO.getSamples(locationId, fromTime, toTime);
+	public List<IWeatherSample> getSamples(UUID locationId, long fromTimeMs, long toTimeMs) {
+		return weatherSampleRepository.getSamples(locationId, fromTimeMs, toTimeMs);
 	}
 	
-	public void insertSample(UUID locationId, double currentTemp, Date time) {
-        RrdSample rrdSample = new RrdSample(time.getTime());
+	public void insertSample(UUID locationId, double currentTemp, long timeMs) {
+        RrdSample rrdSample = new RrdSample(timeMs);
         rrdSample.addMetric(WeatherSampleRrdDb.DS_NAME_CURRENT_TEMP, currentTemp);
-        weatherSampleDAO.insertSample(locationId, rrdSample);
+        weatherSampleRepository.insertSample(locationId, rrdSample);
 	}
 	
 }

@@ -1,13 +1,13 @@
 package org.scottsoft.monitor.common;
 
 import lombok.extern.slf4j.Slf4j;
-import org.scottsoft.monitor.config.AsyncConfig;
+import org.scottsoft.monitor.config.DataCollectorAsyncConfig;
 import org.springframework.scheduling.annotation.Async;
 
 @Slf4j
 public abstract class MonitorAsyncTaskRunner<T, R> {
 
-    @Async(AsyncConfig.COLLECTION_EXECUTOR_BEAN_ID)
+    @Async(DataCollectorAsyncConfig.COLLECTION_EXECUTOR_BEAN_ID)
     public void run(T object) {
         // collect the sample from the target source
         R response = collectSample(object);

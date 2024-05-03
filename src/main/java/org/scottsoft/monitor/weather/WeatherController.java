@@ -1,7 +1,7 @@
 package org.scottsoft.monitor.weather;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,21 +17,19 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Controller
+@RequiredArgsConstructor
 @RequestMapping("/weather")
 public class WeatherController {
 
-    @Autowired
-    private WeatherService weatherService;
+    private final WeatherService weatherService;
 
     @RequestMapping(value = "/{locationId}/samples", method = RequestMethod.GET)
-    public ResponseEntity<List<WeatherSampleDTO>> getThermostatSamples(@PathVariable(value = "locationId") String locationId, @RequestParam(value = "fromTime", required = true) long fromTime, @RequestParam(value = "toTime", required = true) long toTime) {
+    public ResponseEntity<List<OldWeatherSampleDTO>> getWeatherSamples(@PathVariable(value = "locationId") String locationId, @RequestParam(value = "fromTime", required = true) long fromTimeMs, @RequestParam(value = "toTime", required = true) long toTimeMs) {
         try {
-            Date startTime = new Date(fromTime);
-            Date endTime = new Date(toTime);
-            log.debug("Requesting weather data for location id {} from {} to {}", locationId, new Date(fromTime), new Date(toTime));
+            log.debug("Requesting weather data for location id {} from {} to {}", locationId, new Date(fromTimeMs), new Date(toTimeMs));
 
-            List<IWeatherSample> samples = weatherService.getSamples(UUID.fromString(locationId), startTime, endTime);
-            List<WeatherSampleDTO> weatherDTOs = samples.stream().map(weatherSample -> new WeatherSampleDTO(weatherSample.getLocationId(), weatherSample.getCurrentTemp(), weatherSample.getTime())).collect(Collectors.toList());
+            List<IWeatherSample> samples = weatherService.getSamples(UUID.fromString(locationId), fromTimeMs, toTimeMs);
+            List<OldWeatherSampleDTO> weatherDTOs = samples.stream().map(weatherSample -> new OldWeatherSampleDTO(weatherSample.getLocationId(), weatherSample.getCurrentTemp(), weatherSample.getTime())).collect(Collectors.toList());
             return new ResponseEntity<>(weatherDTOs, HttpStatus.OK);
         } catch(Exception e) {
             // TODO: throw new RestException, import and add dependency

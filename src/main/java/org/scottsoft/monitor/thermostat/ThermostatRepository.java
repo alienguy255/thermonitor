@@ -12,4 +12,6 @@ public interface ThermostatRepository extends CrudRepository<Thermostat, UUID> {
 
     List<Thermostat> findByLocation(Location location);
 
+    List<Thermostat> findByLocationId(UUID locationId);
+
 }

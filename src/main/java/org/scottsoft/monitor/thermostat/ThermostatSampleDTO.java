@@ -1,52 +1,13 @@
 package org.scottsoft.monitor.thermostat;
 
-import java.util.UUID;
+public record ThermostatSampleDTO(Double currentTemp, Double override, Double targetTemp, Double tstate, Long timeMs) {
 
-public class ThermostatSampleDTO {
-	
-	private final UUID thermostatId;
-	
-	private final double currentTemp;
-	
-	private final double override;
-	
-	private final double targetTemp;
-	
-	private final double tstate;
-	
-	private final Long time;
-	
-	public ThermostatSampleDTO(UUID themostatId, double currentTemp, double override, double targetTemp, double tstate, Long time) {
-		this.thermostatId = themostatId;
-		this.currentTemp = currentTemp;
-		this.override = override;
-		this.targetTemp = targetTemp;
-		this.tstate = tstate;
-		this.time = time;
-	}
-	
-	public UUID getThermostatId() {
-		return thermostatId;
-	}
-	
-	public Double getCurrentTemp() {
-		return !((Double)currentTemp).equals(Double.NaN) ? currentTemp : null;
-	}
+    public ThermostatSampleDTO(Double currentTemp, Double override, Double targetTemp, Double tstate, Long timeMs) {
+        this.currentTemp = currentTemp.isNaN() ? null : currentTemp;
+        this.override = override.isNaN() ? null : override;
+        this.targetTemp = targetTemp.isNaN() ? null : targetTemp;
+        this.tstate = tstate.isNaN() ? null : tstate;
+        this.timeMs = timeMs;
+    }
 
-	public Double getOverride() {
-		return !((Double)override).equals(Double.NaN) ? override : null;
-	}
-
-	public Double getTargetTemp() {
-		return !((Double)targetTemp).equals(Double.NaN) ? targetTemp : null;
-	}
-
-	public Double getTstate() {
-		return !((Double)tstate).equals(Double.NaN) ? tstate : null;
-	}
-	
-	public Long getTime() {
-		return time;
-	}
-	
 }
