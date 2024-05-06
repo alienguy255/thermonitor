@@ -73,7 +73,9 @@ public class WeatherSampleRepository extends SampleRepository<WeatherSampleRrdDb
 
             rrdDef.addDatasource(WeatherSampleRrdDb.DS_NAME_CURRENT_TEMP, DsType.GAUGE, 7200L, 0.0, Double.MAX_VALUE);
 
-            rrdDef.addArchive(ConsolFun.AVERAGE, 0.5D, 1, 8760); // 8760 hours in a year
+            // 8760 hours in a year
+            // 8760 * 5 = 43800 hours in 5 years
+            rrdDef.addArchive(ConsolFun.AVERAGE, 0.5D, 1, 43800);
             return new WeatherSampleRrdDb(RrdDb.of(rrdDef));
         } catch (IOException e) {
             throw new IllegalStateException(MessageFormat.format("Critical error creating new RRD from definition [{0}].", rrdDef.dump()), e);

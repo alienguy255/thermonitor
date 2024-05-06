@@ -77,7 +77,9 @@ public class ThermostatSampleRepository extends SampleRepository<ThermostatSampl
             rrdDef.addDatasource(ThermostatSampleRrdDb.DS_NAME_OVERRIDE, DsType.GAUGE, 120L, 0.0D, 1.0D);
             rrdDef.addDatasource(ThermostatSampleRrdDb.DS_NAME_TSTATE, DsType.GAUGE, 120L, 0.0D, 1.0D);
 
-            rrdDef.addArchive(ConsolFun.AVERAGE, 0.5D, 1, 525600); // 525600 mins in a year
+            // 525600 mins in a year
+            // 525600 * 5 = 2628000 mins in 5 years
+            rrdDef.addArchive(ConsolFun.AVERAGE, 0.5D, 1, 2628000); // 2628000 mins in 5 years
             return new ThermostatSampleRrdDb(RrdDb.of(rrdDef));
         } catch (IOException e) {
             throw new IllegalStateException(MessageFormat.format("An error occurred creating new RRD from definition [{0}].", rrdDef.dump()), e);

@@ -8,7 +8,7 @@ spring:
       enabled: true
   datasource:
     # creates db in a file called 'monitordb.mv.db'
-    url: jdbc:h2:./monitordb
+    url: jdbc:h2:./scottsoft/db/h2/monitordb
     driverClassName: org.h2.Driver
     username: sa
     password: password

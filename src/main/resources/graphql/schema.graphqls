@@ -1,17 +1,17 @@
 type ThermostatDTO {
     id: ID!
-    location: LocationDTO
+    location: LocationDTO!
     name: String
     url: String
     samples(fromTimeMs: String, toTimeMs: String): [ThermostatSampleDTO]
 }
 
 type ThermostatSampleDTO {
-    currentTemp: String
-    override: String
-    targetTemp: String
-    tstate: String
-    timeMs: String
+    currentTemp: Float
+    override: Float
+    targetTemp: Float
+    tstate: Float
+    timeMs: Float!
 }
 
 type LocationDTO {
@@ -24,12 +24,13 @@ type LocationDTO {
 }
 
 type WeatherSampleDTO {
-    currentTemp: String
-    timeMs: String
+    currentTemp: Float
+    timeMs: Float!
 }
 
 type Query {
     thermostatById(id: ID): ThermostatDTO
+    locationById(id: ID): LocationDTO
     locations: [LocationDTO]
     thermostats: [ThermostatDTO]
 }
