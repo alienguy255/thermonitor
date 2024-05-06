@@ -23,10 +23,10 @@ public class WeatherSampleCollector extends MonitorAsyncTaskRunner<WeatherSource
     @Override
     protected OpenWeatherSample collectSample(WeatherSource weatherSource) {
         Location location = weatherSource.getLocation();
-        log.info("Retrieving weather sample for location {}, longitude {}, latitude {}", location.getDescription(), location.getLongitude(), location.getLatitude());
+        log.debug("Retrieving weather sample for location {}, longitude {}, latitude {}", location.getDescription(), location.getLongitude(), location.getLatitude());
 
         OpenWeatherSample response = restTemplate.getForObject(weatherSource.getUrl(), OpenWeatherSample.class);
-        log.info("response from open weather: " + Optional.ofNullable(response).map(OpenWeatherSample::getMain).orElse(null));
+        log.debug("response from open weather: " + Optional.ofNullable(response).map(OpenWeatherSample::getMain).orElse(null));
         return response;
     }
 

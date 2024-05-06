@@ -20,11 +20,11 @@ public class ThermostatSampleCollector extends MonitorAsyncTaskRunner<Thermostat
 
     @Override
     protected TStatSample collectSample(Thermostat thermostat) {
-        log.info("Retrieving sample from thermostat {} with url {}", thermostat.getName(), thermostat.getUrl());
+        log.debug("Retrieving sample from thermostat {} with url {}", thermostat.getName(), thermostat.getUrl());
 
         // NOTE: timeouts configured in RestTemplateConfig
         TStatSample response = restTemplate.getForObject(thermostat.getUrl(), TStatSample.class);
-        log.info("Response from thermostat {} = {}", thermostat.getName(), response);
+        log.debug("Response from thermostat {} = {}", thermostat.getName(), response);
         return response;
     }
 
