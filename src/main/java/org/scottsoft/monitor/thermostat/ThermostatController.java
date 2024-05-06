@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Controller
@@ -44,25 +43,6 @@ public class ThermostatController {
     }
 
     @GetMapping(value = "/{id}/samples")
-    public ResponseEntity<List<OldThermostatSampleDTO>> getThermostatSamples(@PathVariable(value = "id") String thermostatId, @RequestParam(value = "fromTime") long fromTimeMs, @RequestParam(value = "toTime") long toTimeMs) {
-        try {
-            log.debug("Requesting tstat data for thermostat id {} from {} to {}", thermostatId, new Date(fromTimeMs), new Date(toTimeMs));
-
-            List<IThermostatSample> thermostatSamples = thermostatService.getThermostatSamples(UUID.fromString(thermostatId), fromTimeMs, toTimeMs);
-            List<OldThermostatSampleDTO> thermostatSampleDTOs = thermostatSamples.stream().map(thermostatSample -> new OldThermostatSampleDTO(thermostatSample.thermostatId(),
-                    thermostatSample.currentTemp(), thermostatSample.override(), thermostatSample.targetTemp(), thermostatSample.tstate(), thermostatSample.time().getTime())).collect(Collectors.toList());
-
-            return new ResponseEntity<>(thermostatSampleDTOs, HttpStatus.OK);
-        } catch (Exception e) {
-            // log but dont propagate stack to client, instead log it and return 500 to user
-            // TODO: there could be cases where user input is invalid and we would want to return a 400 for those
-            log.warn("An error occurred fetching thermostat samples.", e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    // TODO: create v2 controller for more optimized responses
-    @GetMapping(value = "/{id}/samples-v2")
     public ResponseEntity<ThermostatSampleDTOList> getSamples(@PathVariable(value = "id") String thermostatId, @RequestParam(value = "fromTime") long fromTimeMs, @RequestParam(value = "toTime") long toTimeMs) {
         log.debug("Requesting tstat data for thermostat id {} from {} to {}", thermostatId, new Date(fromTimeMs), new Date(toTimeMs));
 

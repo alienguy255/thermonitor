@@ -30,14 +30,12 @@ public class ThermostatSampleCollector extends MonitorAsyncTaskRunner<Thermostat
 
     @Override
     protected void insertSample(Thermostat thermostat, TStatSample response) {
-        thermostatService.insertSample(thermostat.getId(), Double.parseDouble(response.temp()), Double.parseDouble(response.tmode()),
-                Double.parseDouble(response.override()), Double.parseDouble(response.t_heat()), Double.parseDouble(response.tstate()), new Date().getTime());
+        thermostatService.insertSample(thermostat.getId(), response.temp(), response.tmode(), response.override(), response.t_heat(), response.tstate(), new Date().getTime());
     }
 
     @Override
     protected void notifyClients(Thermostat thermostat, TStatSample response) {
-        OldThermostatSampleDTO sampleDTO = new OldThermostatSampleDTO(thermostat.getId(), Double.parseDouble(response.temp()), Double.parseDouble(response.override()),
-                Double.parseDouble(response.t_heat()), Double.parseDouble(response.tstate()), new Date().getTime());
-        template.convertAndSend("/topic/tstat-updates", sampleDTO);
+        ThermostatUpdateEvent tstatUpdate = new ThermostatUpdateEvent(thermostat.getId(), new ThermostatSampleDTO(response.temp(), response.override(), response.t_heat(), response.tstate(), new Date().getTime()));
+        template.convertAndSend("/topic/tstat-updates", tstatUpdate);
     }
 }

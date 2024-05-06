@@ -1,16 +1,18 @@
 package org.scottsoft.monitor.thermostat;
 
+import lombok.RequiredArgsConstructor;
 import org.rrd4j.core.RrdDb;
 import org.rrd4j.core.Sample;
 import org.scottsoft.monitor.common.RrdSample;
 import org.scottsoft.monitor.common.ISampleRrdDb;
 
+import java.io.Closeable;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-public class ThermostatSampleRrdDb implements ISampleRrdDb {
-
-    private final RrdDb rrdDb;
+@RequiredArgsConstructor
+public class ThermostatSampleRrdDb implements ISampleRrdDb, Closeable {
 
     public static final String DS_NAME_CURRENT_TEMP = "currentTemp";
     public static final String DS_NAME_TARGET_TEMP = "targetTemp";
@@ -18,26 +20,22 @@ public class ThermostatSampleRrdDb implements ISampleRrdDb {
     public static final String DS_NAME_OVERRIDE = "override";
     public static final String DS_NAME_TSTATE = "tstate";
 
-    public ThermostatSampleRrdDb(RrdDb rrdDb) {
-        this.rrdDb = rrdDb;
+    private final RrdDb rrdDb;
+
+    public void insertSample(RrdSample rrdSample) throws IOException {
+        Sample sample = rrdDb.createSample();
+        for (String dsName : rrdDb.getDsNames()) {
+            sample.setValue(dsName, Objects.requireNonNullElse(rrdSample.getMetric(dsName), Double.NaN));
+        }
+
+        sample.setTime(TimeUnit.MILLISECONDS.toSeconds(rrdSample.getTimestamp()));
+        sample.update();
     }
 
-    public void insertSample(RrdSample rrdSample) {
-        try {
-            Sample sample = rrdDb.createSample();
-            sample.setValue(DS_NAME_CURRENT_TEMP, rrdSample.getMetric(DS_NAME_CURRENT_TEMP));
-            sample.setValue(DS_NAME_TARGET_TEMP, rrdSample.getMetric(DS_NAME_TARGET_TEMP));
-            sample.setValue(DS_NAME_TMODE, rrdSample.getMetric(DS_NAME_TMODE));
-            sample.setValue(DS_NAME_OVERRIDE, rrdSample.getMetric(DS_NAME_OVERRIDE));
-            sample.setValue(DS_NAME_TSTATE, rrdSample.getMetric(DS_NAME_TSTATE));
-
-            sample.setTime(TimeUnit.MILLISECONDS.toSeconds(rrdSample.getTimestamp()));
-            sample.update();
-
+    @Override
+    public void close() throws IOException {
+        if (rrdDb != null) {
             rrdDb.close();
-        } catch(IOException e) {
-            throw new IllegalStateException("Error constructing and adding thermostat sample to RRD " + rrdDb.getPath(), e);
         }
     }
-
 }

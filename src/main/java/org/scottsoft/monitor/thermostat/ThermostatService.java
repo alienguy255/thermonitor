@@ -44,7 +44,7 @@ public class ThermostatService {
                 .orElseThrow(() -> new IllegalArgumentException("The provided location id was not found."));
     }
 
-	public void insertSample(UUID thermostatId, double currentTemp, double tmode, double override, double targetTemp, double tstate, long timeMs) {
+	public void insertSample(UUID thermostatId, Double currentTemp, Double tmode, Double override, Double targetTemp, Double tstate, long timeMs) {
         RrdSample rrdSample = new RrdSample(timeMs);
         rrdSample.addMetric(ThermostatSampleRrdDb.DS_NAME_CURRENT_TEMP, currentTemp);
         rrdSample.addMetric(ThermostatSampleRrdDb.DS_NAME_TMODE, tmode);

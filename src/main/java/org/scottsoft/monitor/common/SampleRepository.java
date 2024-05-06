@@ -5,6 +5,7 @@ import org.rrd4j.ConsolFun;
 import org.rrd4j.core.FetchData;
 import org.rrd4j.core.RrdDb;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -17,7 +18,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public abstract class SampleRepository<T extends ISampleRrdDb, S> implements ISampleRepository<S> {
+public abstract class SampleRepository<T extends ISampleRrdDb & Closeable, S> implements ISampleRepository<S> {
 
     protected final String RRD_DB_FILE_LOCATION = System.getProperty("user.dir") + "/scottsoft/db/rrd";
 
@@ -46,13 +47,12 @@ public abstract class SampleRepository<T extends ISampleRrdDb, S> implements ISa
         ensureDirsExist(id.toString());
 
         File rrdDbFile = new File(getRrdDbFilePath(id));
-        T rrdDb = rrdDbFile.exists() ? getRrd(rrdDbFile.getAbsolutePath()) : createRrd(rrdDbFile.getAbsolutePath());
 
-        // TODO: make ThermostatSampleRrdDb, etc.. Closeable, then change to the following:
-        //   try (T rrdDb = rrdDbFile.exists() ? getRrd(rrdDbFile.getAbsolutePath()) : createRrd(rrdDbFile.getAbsolutePath())) {
-        //        rrdDb.insertSample(rrdSample);
-        //   }
-        rrdDb.insertSample(rrdSample);
+        try (T rrdDb = rrdDbFile.exists() ? getRrd(rrdDbFile.getAbsolutePath()) : createRrd(rrdDbFile.getAbsolutePath())) {
+            rrdDb.insertSample(rrdSample);
+        } catch (IOException e) {
+            throw new IllegalStateException("An error occurred adding sample to RRD " + rrdDbFile.getAbsolutePath(), e);
+        }
     }
 
     protected abstract S convertSample(UUID id, RrdSample rrdSample);

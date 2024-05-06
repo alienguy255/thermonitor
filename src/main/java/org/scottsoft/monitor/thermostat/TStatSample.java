@@ -1,3 +1,3 @@
 package org.scottsoft.monitor.thermostat;
 
-public record TStatSample(String temp, String tmode, String override, String t_heat, String tstate) {}
+public record TStatSample(Double temp, Double tmode, Double override, Double t_heat, Double tstate) {}
