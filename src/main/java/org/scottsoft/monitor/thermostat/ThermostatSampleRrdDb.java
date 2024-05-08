@@ -22,6 +22,7 @@ public class ThermostatSampleRrdDb implements ISampleRrdDb, Closeable {
 
     private final RrdDb rrdDb;
 
+    @Override
     public void insertSample(RrdSample rrdSample) throws IOException {
         Sample sample = rrdDb.createSample();
         for (String dsName : rrdDb.getDsNames()) {

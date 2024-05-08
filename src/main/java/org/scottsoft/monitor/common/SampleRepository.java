@@ -48,6 +48,15 @@ public abstract class SampleRepository<T extends ISampleRrdDb & Closeable, S> im
 
         File rrdDbFile = new File(getRrdDbFilePath(id));
 
+        // TODO: can this be simplified, can the try just get an rrddb and use the same code here:
+        // Sample sample = rrdDb.createSample();
+        // for (String dsName : rrdDb.getDsNames()) {
+        //      sample.setValue(dsName, Objects.requireNonNullElse(rrdSample.getMetric(dsName), Double.NaN));
+        // }
+        //
+        // sample.setTime(TimeUnit.MILLISECONDS.toSeconds(rrdSample.getTimestamp()));
+        // sample.update();
+
         try (T rrdDb = rrdDbFile.exists() ? getRrd(rrdDbFile.getAbsolutePath()) : createRrd(rrdDbFile.getAbsolutePath())) {
             rrdDb.insertSample(rrdSample);
         } catch (IOException e) {
