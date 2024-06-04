@@ -9,24 +9,12 @@ import lombok.Data;
 public class RadioThermostatCollectionSample implements TStatCollectionSample {
 
     private Double temp;
-    private Double tmode;
-    private Double override;
     private Double t_heat;
     private Double tstate;
 
     @Override
     public Double temp() {
         return temp;
-    }
-
-    @Override
-    public Double tmode() {
-        return tmode;
-    }
-
-    @Override
-    public Double override() {
-        return override;
     }
 
     @Override

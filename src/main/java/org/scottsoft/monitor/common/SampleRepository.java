@@ -35,7 +35,7 @@ public abstract class SampleRepository<S> implements ISampleRepository<S> {
                             Arrays.stream(fetchData.getDsNames()).collect(Collectors.toMap(Function.identity(), (dsName) -> fetchData.getValues(dsName)[i]))))
                     .map(rrdSample -> convertSample(id, rrdSample))
                     .collect(Collectors.toList());
-        } catch (FileNotFoundException e) {
+        } catch (IllegalArgumentException | FileNotFoundException e) {
             return Lists.newArrayList();
         } catch (IOException e) {
             throw new IllegalStateException(MessageFormat.format("Error occurred retrieving data from rrd file {0}", getRrdDbFilePath(id)), e);

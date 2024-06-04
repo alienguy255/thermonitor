@@ -39,8 +39,7 @@ public class ThermostatGraphQLController {
 
     @SchemaMapping
     public List<ThermostatSampleDTO> samples(ThermostatDTO thermostat, @Argument long fromTimeMs, @Argument long toTimeMs) {
-        List<IThermostatSample> thermostatSamples = thermostatService.getThermostatSamples(thermostat.id(), fromTimeMs, toTimeMs);
-        return thermostatSamples.stream()
+        return thermostatService.getThermostatSamples(thermostat.id(), fromTimeMs, toTimeMs).stream()
                 .map(ts -> new ThermostatSampleDTO(ts.currentTemp(), ts.targetTemp(), ts.tstate(), ts.time().getTime()))
                 .toList();
     }

@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,10 +43,7 @@ public class ThermostatController {
 
     @GetMapping(value = "/{id}/samples")
     public ResponseEntity<ThermostatSampleDTOList> getSamples(@PathVariable(value = "id") String thermostatId, @RequestParam(value = "fromTime") long fromTimeMs, @RequestParam(value = "toTime") long toTimeMs) {
-        log.debug("Requesting tstat data for thermostat id {} from {} to {}", thermostatId, new Date(fromTimeMs), new Date(toTimeMs));
-
-        List<IThermostatSample> thermostatSamples = thermostatService.getThermostatSamples(UUID.fromString(thermostatId), fromTimeMs, toTimeMs);
-        List<ThermostatSampleDTO> tstatSamples = thermostatSamples.stream()
+        List<ThermostatSampleDTO> tstatSamples = thermostatService.getThermostatSamples(UUID.fromString(thermostatId), fromTimeMs, toTimeMs).stream()
                 .map(ts -> new ThermostatSampleDTO(ts.currentTemp(), ts.targetTemp(), ts.tstate(), ts.time().getTime()))
                 .toList();
 
@@ -67,5 +63,7 @@ public class ThermostatController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+    // TODO: add support for deleting a thermostat - also delete associated rrd files
 
 }

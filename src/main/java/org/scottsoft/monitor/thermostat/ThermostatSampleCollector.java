@@ -42,7 +42,7 @@ public class ThermostatSampleCollector extends MonitorAsyncTaskRunner<Thermostat
 
     @Override
     protected void insertSample(Thermostat thermostat, TStatCollectionSample response, long collectionTimeMs) {
-        thermostatService.insertSample(thermostat.getId(), response.temp(), response.tmode(), response.override(), response.targetTemp(), response.tstate(), collectionTimeMs);
+        thermostatService.insertSample(thermostat.getId(), response.temp(), response.targetTemp(), response.tstate(), collectionTimeMs);
     }
 
     @Override
