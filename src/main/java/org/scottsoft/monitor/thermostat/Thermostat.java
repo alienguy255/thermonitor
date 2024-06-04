@@ -2,6 +2,8 @@ package org.scottsoft.monitor.thermostat;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -37,8 +39,15 @@ public class Thermostat {
     @JoinColumn(name = "location_id")
 	private Location location;
 
-    public Thermostat(String name, String url, Location location) {
-        this(null, name, url, location);
+    @Column(name = "source_type")
+    @Enumerated(EnumType.STRING)
+    private ThermostatSourceType sourceType;
+
+    @Column(name = "auth_token")
+    private String authToken;
+
+    public Thermostat(String name, String url, Location location, ThermostatSourceType sourceType, String authToken) {
+        this(null, name, url, location, sourceType, authToken);
     }
 
     public ThermostatDTO toDto() {

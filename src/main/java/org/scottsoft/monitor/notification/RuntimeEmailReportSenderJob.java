@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 @EnableScheduling
 @RequiredArgsConstructor
 @ManagedResource
-public class DailyRuntimeEmailReportSender {
+public class RuntimeEmailReportSenderJob {
 
     private static final DecimalFormat DOUBLE_FORMATTER = new DecimalFormat(".##");
 
@@ -58,7 +58,7 @@ public class DailyRuntimeEmailReportSender {
 
                 if (!Double.isNaN(avgOutsideTemp)) {
                     body.with(TagCreator
-                            .h3("Average outside temperature for " + location.getDescription() + " in the past 24 hours: " + DailyRuntimeEmailReportSender.DOUBLE_FORMATTER.format(avgOutsideTemp) + " F")
+                            .h3("Average outside temperature for " + location.getDescription() + " in the past 24 hours: " + RuntimeEmailReportSenderJob.DOUBLE_FORMATTER.format(avgOutsideTemp) + " F")
                             .attr("style", "margin-top:0px;margin-bottom:0px;"));
 
                     Optional<IWeatherSample> minOutsideTempSampleOptional = weatherSamples.stream()
@@ -90,13 +90,13 @@ public class DailyRuntimeEmailReportSender {
                             .filter(sample -> !Double.valueOf(sample).isNaN())
                             .sum();
                     body.with(TagCreator.p("Past 24hr runtime: " + this.runtimeDisplayString(runtimeInMins)).attr("style", "margin-top:0px;margin-bottom:0px;"));
-                    body.with(TagCreator.p("Past 24hr runtime percentage: " + DailyRuntimeEmailReportSender.DOUBLE_FORMATTER.format(runtimeInMins / 1440.0 * 100.0) + "%").attr("style", "margin-top:0px;margin-bottom:0px;"));
+                    body.with(TagCreator.p("Past 24hr runtime percentage: " + RuntimeEmailReportSenderJob.DOUBLE_FORMATTER.format(runtimeInMins / 1440.0 * 100.0) + "%").attr("style", "margin-top:0px;margin-bottom:0px;"));
                     body.with(TagCreator.br());
                 }
             }
             String emailContent = TagCreator.html().with(body).renderFormatted();
-            log.info("Emailing daily runtime report...");
-            log.info("email content={}", emailContent);
+            log.debug("Emailing daily runtime report...");
+            log.debug("email content={}", emailContent);
 
             MimeMailMessageSender.createMailer(mailSender)
                     .addRecipients("scottmlaplante@gmail.com")
@@ -104,7 +104,7 @@ public class DailyRuntimeEmailReportSender {
                     .setContent(emailContent)
                     .sendMail();
         } catch (Exception e) {
-            log.warn("An error occurred running email report.", e);
+            log.warn("An error occurred sending email report.", e);
         }
     }
 

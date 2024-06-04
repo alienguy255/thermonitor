@@ -25,7 +25,7 @@ public class LocationGraphQLController {
     }
 
     @QueryMapping
-    public LocationDTO locationById(@Argument String id) {
+    public LocationDTO location(@Argument String id) {
         Location location = locationService.getLocationById(UUID.fromString(id));
         return Optional.ofNullable(location).map(Location::toDto).orElse(null);
     }

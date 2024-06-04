@@ -25,7 +25,7 @@ public class ThermostatGraphQLController {
     }
 
     @QueryMapping
-    public ThermostatDTO thermostatById(@Argument String id) {
+    public ThermostatDTO thermostat(@Argument String id) {
         Thermostat thermostat = thermostatService.getThermostatById(UUID.fromString(id));
         return Optional.ofNullable(thermostat).map(Thermostat::toDto).orElse(null);
     }
@@ -41,7 +41,7 @@ public class ThermostatGraphQLController {
     public List<ThermostatSampleDTO> samples(ThermostatDTO thermostat, @Argument long fromTimeMs, @Argument long toTimeMs) {
         List<IThermostatSample> thermostatSamples = thermostatService.getThermostatSamples(thermostat.id(), fromTimeMs, toTimeMs);
         return thermostatSamples.stream()
-                .map(ts -> new ThermostatSampleDTO(ts.currentTemp(), ts.override(), ts.targetTemp(), ts.tstate(), ts.time().getTime()))
+                .map(ts -> new ThermostatSampleDTO(ts.currentTemp(), ts.targetTemp(), ts.tstate(), ts.time().getTime()))
                 .toList();
     }
 

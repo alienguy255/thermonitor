@@ -23,8 +23,8 @@ public class DataCollectorAsyncConfig implements AsyncConfigurer {
     @Override
     public Executor getAsyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(5);
-        executor.setMaxPoolSize(5);
+        executor.setCorePoolSize(10);
+        executor.setMaxPoolSize(10);
         executor.setThreadNamePrefix("DataCollector-");
         return executor;
     }

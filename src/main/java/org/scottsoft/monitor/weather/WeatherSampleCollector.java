@@ -31,13 +31,13 @@ public class WeatherSampleCollector extends MonitorAsyncTaskRunner<WeatherSource
     }
 
     @Override
-    protected void insertSample(WeatherSource weatherSource, OpenWeatherSample response) {
-        weatherService.insertSample(weatherSource.getLocation().getId(), response.getTemp(), new Date().getTime());
+    protected void insertSample(WeatherSource weatherSource, OpenWeatherSample response, long collectionTimeMs) {
+        weatherService.insertSample(weatherSource.getLocation().getId(), response.getTemp(), collectionTimeMs);
     }
 
     @Override
-    protected void notifyClients(WeatherSource weatherSource, OpenWeatherSample response) {
-        OldWeatherSampleDTO sampleDTO = new OldWeatherSampleDTO(weatherSource.getId(), response.getTemp(), new Date());
+    protected void notifyClients(WeatherSource weatherSource, OpenWeatherSample response, long collectionTimeMs) {
+        OldWeatherSampleDTO sampleDTO = new OldWeatherSampleDTO(weatherSource.getId(), response.getTemp(), new Date(collectionTimeMs));
         template.convertAndSend("/topic/weather-updates", sampleDTO);
     }
 

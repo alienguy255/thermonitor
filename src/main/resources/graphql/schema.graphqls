@@ -29,8 +29,8 @@ type WeatherSampleDTO {
 }
 
 type Query {
-    thermostatById(id: ID): ThermostatDTO
-    locationById(id: ID): LocationDTO
+    thermostat(id: ID): ThermostatDTO
+    location(id: ID): LocationDTO
     locations: [LocationDTO]
     thermostats: [ThermostatDTO]
 }

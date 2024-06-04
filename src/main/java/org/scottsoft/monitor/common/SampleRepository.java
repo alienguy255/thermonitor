@@ -4,21 +4,22 @@ import com.google.common.collect.Lists;
 import org.rrd4j.ConsolFun;
 import org.rrd4j.core.FetchData;
 import org.rrd4j.core.RrdDb;
+import org.rrd4j.core.Sample;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public abstract class SampleRepository<T extends ISampleRrdDb & Closeable, S> implements ISampleRepository<S> {
+public abstract class SampleRepository<S> implements ISampleRepository<S> {
 
     protected final String RRD_DB_FILE_LOCATION = System.getProperty("user.dir") + "/scottsoft/db/rrd";
 
@@ -48,17 +49,14 @@ public abstract class SampleRepository<T extends ISampleRrdDb & Closeable, S> im
 
         File rrdDbFile = new File(getRrdDbFilePath(id));
 
-        // TODO: can this be simplified, can the try just get an rrddb and use the same code here:
-        // Sample sample = rrdDb.createSample();
-        // for (String dsName : rrdDb.getDsNames()) {
-        //      sample.setValue(dsName, Objects.requireNonNullElse(rrdSample.getMetric(dsName), Double.NaN));
-        // }
-        //
-        // sample.setTime(TimeUnit.MILLISECONDS.toSeconds(rrdSample.getTimestamp()));
-        // sample.update();
+        try (RrdDb rrdDb = rrdDbFile.exists() ? RrdDb.of(rrdDbFile.getAbsolutePath()) : createRrd(rrdDbFile.getAbsolutePath())) {
+            Sample sample = rrdDb.createSample();
+            for (String dsName : rrdDb.getDsNames()) {
+                sample.setValue(dsName, Objects.requireNonNullElse(rrdSample.getMetric(dsName), Double.NaN));
+            }
 
-        try (T rrdDb = rrdDbFile.exists() ? getRrd(rrdDbFile.getAbsolutePath()) : createRrd(rrdDbFile.getAbsolutePath())) {
-            rrdDb.insertSample(rrdSample);
+            sample.setTime(TimeUnit.MILLISECONDS.toSeconds(rrdSample.getTimestamp()));
+            sample.update();
         } catch (IOException e) {
             throw new IllegalStateException("An error occurred adding sample to RRD " + rrdDbFile.getAbsolutePath(), e);
         }
@@ -68,9 +66,7 @@ public abstract class SampleRepository<T extends ISampleRrdDb & Closeable, S> im
 
     protected abstract void ensureDirsExist(String id);
 
-    protected abstract T getRrd(String filePath);
-
-    protected abstract T createRrd(String filePath);
+    protected abstract RrdDb createRrd(String filePath);
 
     protected abstract String getRrdDbFilePath(UUID id);
 

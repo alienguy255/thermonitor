@@ -25,7 +25,7 @@ public class WeatherService {
 	
 	public void insertSample(UUID locationId, double currentTemp, long timeMs) {
         RrdSample rrdSample = new RrdSample(timeMs);
-        rrdSample.addMetric(WeatherSampleRrdDb.DS_NAME_CURRENT_TEMP, currentTemp);
+        rrdSample.addMetric(WeatherSampleRepository.DS_NAME_CURRENT_TEMP, currentTemp);
         weatherSampleRepository.insertSample(locationId, rrdSample);
 	}
 	

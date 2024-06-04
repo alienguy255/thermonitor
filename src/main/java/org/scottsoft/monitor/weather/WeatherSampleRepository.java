@@ -13,12 +13,13 @@ import org.rrd4j.core.RrdDb;
 import org.rrd4j.core.RrdDef;
 import org.scottsoft.monitor.common.SampleRepository;
 import org.scottsoft.monitor.common.RrdSample;
-import org.scottsoft.monitor.thermostat.ThermostatSampleRrdDb;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class WeatherSampleRepository extends SampleRepository<WeatherSampleRrdDb, IWeatherSample> {
+public class WeatherSampleRepository extends SampleRepository<IWeatherSample> {
+
+    public static final String DS_NAME_CURRENT_TEMP = "currentTemp";
 
     @Override
     protected String getRrdDbFilePath(UUID locationId) {
@@ -32,7 +33,7 @@ public class WeatherSampleRepository extends SampleRepository<WeatherSampleRrdDb
 
     @Override
     protected IWeatherSample convertSample(UUID locationId, RrdSample rrdSample) {
-        return new WeatherSample(locationId, rrdSample.getMetric(ThermostatSampleRrdDb.DS_NAME_CURRENT_TEMP), new Date(rrdSample.getTimestamp()));
+        return new WeatherSample(locationId, rrdSample.getMetric(DS_NAME_CURRENT_TEMP), new Date(rrdSample.getTimestamp()));
     }
 
     @Override
@@ -54,16 +55,7 @@ public class WeatherSampleRepository extends SampleRepository<WeatherSampleRrdDb
     }
 
     @Override
-    protected WeatherSampleRrdDb getRrd(String filePath) {
-        try {
-            return new WeatherSampleRrdDb(RrdDb.of(filePath));
-        } catch(IOException e) {
-            throw new IllegalStateException(MessageFormat.format("Critical error accessing RRD in file ''{0}''.", filePath), e);
-        }
-    }
-
-    @Override
-    protected WeatherSampleRrdDb createRrd(String filePath) {
+    protected RrdDb createRrd(String filePath) {
         RrdDef rrdDef = new RrdDef(filePath, 3600L);  // 1 hour step
         try {
             long ARBITRARILY_OLD_DATE = 1262304000L;
@@ -71,12 +63,13 @@ public class WeatherSampleRepository extends SampleRepository<WeatherSampleRrdDb
             rrdDef.setVersion(2);
             rrdDef.setStartTime(ARBITRARILY_OLD_DATE);
 
-            rrdDef.addDatasource(WeatherSampleRrdDb.DS_NAME_CURRENT_TEMP, DsType.GAUGE, 7200L, 0.0, Double.MAX_VALUE);
+            rrdDef.addDatasource(DS_NAME_CURRENT_TEMP, DsType.GAUGE, 7200L, 0.0, Double.MAX_VALUE);
 
             // 8760 hours in a year
             // 8760 * 5 = 43800 hours in 5 years
             rrdDef.addArchive(ConsolFun.AVERAGE, 0.5D, 1, 43800);
-            return new WeatherSampleRrdDb(RrdDb.of(rrdDef));
+
+            return RrdDb.of(rrdDef);
         } catch (IOException e) {
             throw new IllegalStateException(MessageFormat.format("Critical error creating new RRD from definition [{0}].", rrdDef.dump()), e);
         }

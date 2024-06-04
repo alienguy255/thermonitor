@@ -16,7 +16,11 @@ import org.springframework.stereotype.Component;
 import org.rrd4j.core.RrdDb;
 
 @Component
-public class ThermostatSampleRepository extends SampleRepository<ThermostatSampleRrdDb, IThermostatSample> {
+public class ThermostatSampleRepository extends SampleRepository<IThermostatSample> {
+
+    public static final String DS_NAME_CURRENT_TEMP = "currentTemp";
+    public static final String DS_NAME_TARGET_TEMP = "targetTemp";
+    public static final String DS_NAME_TSTATE = "tstate";
 
     @Override
     protected String getRrdDbFilePath(UUID thermostatId) {
@@ -30,9 +34,8 @@ public class ThermostatSampleRepository extends SampleRepository<ThermostatSampl
 
     @Override
     protected IThermostatSample convertSample(UUID thermostatId, RrdSample rrdSample) {
-        return new ThermostatSample(thermostatId, rrdSample.getMetric(ThermostatSampleRrdDb.DS_NAME_CURRENT_TEMP), rrdSample.getMetric(ThermostatSampleRrdDb.DS_NAME_TMODE),
-                rrdSample.getMetric(ThermostatSampleRrdDb.DS_NAME_OVERRIDE), rrdSample.getMetric(ThermostatSampleRrdDb.DS_NAME_TARGET_TEMP), rrdSample.getMetric(ThermostatSampleRrdDb.DS_NAME_TSTATE),
-                new Date(rrdSample.getTimestamp()));
+        return new ThermostatSample(thermostatId, rrdSample.getMetric(DS_NAME_CURRENT_TEMP), rrdSample.getMetric(DS_NAME_TARGET_TEMP),
+                rrdSample.getMetric(DS_NAME_TSTATE), new Date(rrdSample.getTimestamp()));
     }
 
     @Override
@@ -54,16 +57,7 @@ public class ThermostatSampleRepository extends SampleRepository<ThermostatSampl
     }
 
     @Override
-    protected ThermostatSampleRrdDb getRrd(String filePath) {
-        try {
-            return new ThermostatSampleRrdDb(RrdDb.of(filePath));
-        } catch (IOException e) {
-            throw new IllegalStateException(MessageFormat.format("An error occurred accessing RRD file ''{0}''.", filePath), e);
-        }
-    }
-
-    @Override
-    protected ThermostatSampleRrdDb createRrd(String filePath) {
+    protected RrdDb createRrd(String filePath) {
         RrdDef rrdDef = new RrdDef(filePath, 60L); // 1 min step
         try {
             long ARBITRARILY_OLD_DATE = 1262304000L;
@@ -71,16 +65,15 @@ public class ThermostatSampleRepository extends SampleRepository<ThermostatSampl
             rrdDef.setVersion(2);
             rrdDef.setStartTime(ARBITRARILY_OLD_DATE);
 
-            rrdDef.addDatasource(ThermostatSampleRrdDb.DS_NAME_CURRENT_TEMP, DsType.GAUGE, 120L, 0.0, Double.MAX_VALUE);
-            rrdDef.addDatasource(ThermostatSampleRrdDb.DS_NAME_TARGET_TEMP, DsType.GAUGE, 120L, 0.0, Double.MAX_VALUE);
-            rrdDef.addDatasource(ThermostatSampleRrdDb.DS_NAME_TMODE, DsType.GAUGE, 120L, 0.0D, 1.0D);
-            rrdDef.addDatasource(ThermostatSampleRrdDb.DS_NAME_OVERRIDE, DsType.GAUGE, 120L, 0.0D, 1.0D);
-            rrdDef.addDatasource(ThermostatSampleRrdDb.DS_NAME_TSTATE, DsType.GAUGE, 120L, 0.0D, 1.0D);
+            rrdDef.addDatasource(DS_NAME_CURRENT_TEMP, DsType.GAUGE, 120L, 0.0, Double.MAX_VALUE);
+            rrdDef.addDatasource(DS_NAME_TARGET_TEMP, DsType.GAUGE, 120L, 0.0, Double.MAX_VALUE);
+            rrdDef.addDatasource(DS_NAME_TSTATE, DsType.GAUGE, 120L, 0.0D, 1.0D);
 
             // 525600 mins in a year
             // 525600 * 5 = 2628000 mins in 5 years
             rrdDef.addArchive(ConsolFun.AVERAGE, 0.5D, 1, 2628000); // 2628000 mins in 5 years
-            return new ThermostatSampleRrdDb(RrdDb.of(rrdDef));
+
+            return RrdDb.of(rrdDef);
         } catch (IOException e) {
             throw new IllegalStateException(MessageFormat.format("An error occurred creating new RRD from definition [{0}].", rrdDef.dump()), e);
         }

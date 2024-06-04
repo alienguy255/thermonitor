@@ -48,18 +48,19 @@ public class ThermostatController {
 
         List<IThermostatSample> thermostatSamples = thermostatService.getThermostatSamples(UUID.fromString(thermostatId), fromTimeMs, toTimeMs);
         List<ThermostatSampleDTO> tstatSamples = thermostatSamples.stream()
-                .map(ts -> new ThermostatSampleDTO(ts.currentTemp(), ts.override(), ts.targetTemp(), ts.tstate(), ts.time().getTime()))
+                .map(ts -> new ThermostatSampleDTO(ts.currentTemp(), ts.targetTemp(), ts.tstate(), ts.time().getTime()))
                 .toList();
 
         return new ResponseEntity<>(new ThermostatSampleDTOList(UUID.fromString(thermostatId), tstatSamples), HttpStatus.OK);
     }
 
-    public record TStatRequestBody(String name, String url, UUID locationId) {}
+    public record TStatRequestBody(String name, String url, UUID locationId, String sourceType, String authToken) {}
 
     @PostMapping
     public ResponseEntity<?> createThermostat(@RequestBody TStatRequestBody tstatBody) {
         try {
-            return new ResponseEntity<>(thermostatService.createThermostat(tstatBody.name(), tstatBody.url(), tstatBody.locationId()), HttpStatus.OK);
+            ThermostatSourceType sourceType = ThermostatSourceType.valueOf(tstatBody.sourceType);
+            return new ResponseEntity<>(thermostatService.createThermostat(tstatBody.name(), tstatBody.url(), tstatBody.locationId(), sourceType, tstatBody.authToken()), HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             // log but dont propagate stack to client, instead log it and return 400 to user
             log.warn("An error occurred creating thermostat.", e);

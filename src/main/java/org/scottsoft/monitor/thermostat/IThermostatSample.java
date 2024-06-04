@@ -9,10 +9,6 @@ public interface IThermostatSample {
 
 	double currentTemp();
 
-    double tmode();
-
-    double override();
-
     double targetTemp();
 
     double tstate();
